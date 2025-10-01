@@ -48,8 +48,11 @@ export const redirectUrl = async (req, res) => {
       return res.status(404).json({ message: "URL not found" });
     }
 
-    // Redirect the user to the original URL
-    return res.redirect(url.originalUrl);
+    // Return the original URL as JSON for frontend to handle redirect
+    return res.status(200).json({ 
+      originalUrl: url.originalUrl,
+      shortId: url.shortId 
+    });
   } catch (error) {
     console.error("Error in redirectUrl:", error);
     return res.status(500).json({ message: "Server Error" });
