@@ -42,6 +42,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
     }),
   ],
   pages: {
@@ -61,5 +68,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return token;
     },
   },
-  debug: true,
+  debug: process.env.NODE_ENV === "development",
+  trustHost: true,
 });
