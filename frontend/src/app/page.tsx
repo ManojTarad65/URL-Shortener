@@ -24,7 +24,7 @@ export default function LandingPage() {
             Transform long URLs into elegant, shareable links. The simple
             solution for a cleaner web experience.
           </p>
-          <Link href="/register">
+          <Link href="/login">
             <button className="px-6 py-3 rounded-lg bg-blue-500 hover:bg-blue-600 transition text-lg font-semibold shadow-lg shadow-blue-500/30">
               Try It Now
             </button>

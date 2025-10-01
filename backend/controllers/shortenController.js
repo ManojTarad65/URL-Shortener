@@ -175,7 +175,7 @@ export const shortenUrl = async (req, res) => {
     if (existingUrl) {
       return res.status(200).json({
         message: "✅ URL already shortened",
-        shortUrl: `http://localhost:8000/${existingUrl.shortId}`,
+        shortUrl: `${process.env.BASE_URL}/${existingUrl.shortId}`,
       });
     }
 
@@ -187,7 +187,7 @@ export const shortenUrl = async (req, res) => {
 
     return res.status(201).json({
       message: "✅ Short URL generated",
-      shortUrl: `http://localhost:8000/${newUrl.shortId}`,
+      shortUrl: `${process.env.BASE_URL}/${newUrl.shortId}`,
     });
   } catch (error) {
     console.error("Error in shortenUrl:", error);

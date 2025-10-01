@@ -1,64 +1,27 @@
-// // frontend/pages/index.tsx
-// "use client";
-// import { useState } from "react";
-// import axios from "axios";
 
-// export default function Home() {
-//   const [url, setUrl] = useState("");
-//   const [shortUrl, setShortUrl] = useState("");
-
-//   const handleSubmit = async (e: any) => {
-//     e.preventDefault();
-//     const res = await axios.post("http://localhost:8000/shorten", {
-//       originalUrl: url,
-//     });
-//     setShortUrl(res.data.shortUrl);
-//   };
-
-//   return (
-//     <div className="h-screen flex flex-col items-center justify-center bg-gray-900 text-white">
-//       <h1 className="text-3xl font-bold mb-4">🔗 URL Shortener</h1>
-//       <form onSubmit={handleSubmit} className="flex space-x-2">
-//         <input
-//           type="url"
-//           placeholder="Enter long URL"
-//           value={url}
-//           onChange={(e) => setUrl(e.target.value)}
-//           className="px-4 py-2 rounded-lg border  w-80"
-//         />
-//         <button type="submit" className="bg-blue-500 px-4 py-2 rounded-lg">
-//           Shorten
-//         </button>
-//       </form>
-//       {shortUrl && (
-//         <p className="mt-4">
-//           Short URL:{" "}
-//           <a
-//             href={shortUrl}
-//             target="_blank"
-//             className="text-green-400 underline"
-//           >
-//             {shortUrl}
-//           </a>
-//         </p>
-//       )}
-//     </div>
-//   );
-// }
-// frontend/pages/index.tsx
 // "use client";
 
 // import { useState } from "react";
 // import axios from "axios";
 // import { motion } from "framer-motion";
-// import { Check, Copy } from "lucide-react"; // ✅ install lucide-react for icons
+// import { Check, Copy } from "lucide-react";
+// import { toast } from "sonner";
+// import { signOut, useSession } from "next-auth/react";
 
 // export default function Home() {
 //   const [url, setUrl] = useState("");
 //   const [shortUrl, setShortUrl] = useState("");
 //   const [copied, setCopied] = useState(false);
+//   const { data: session } = useSession();
+
+//   if (!session) {
+//     return <p className="text-white">Not logged in ❌</p>;
+//   }
+
 
 //   const handleSubmit = async (e: any) => {
+
+
 //     e.preventDefault();
 //     try {
 //       const res = await axios.post("http://localhost:8000/shorten", {
@@ -68,17 +31,31 @@
 //       setCopied(false);
 //     } catch (error) {
 //       console.error("Error:", error);
+//      toast.error("⚠️ Please Enter Url. Please check your backend server.");
 //     }
-//   };
+//   };    
 
 //   const handleCopy = () => {
 //     navigator.clipboard.writeText(shortUrl);
 //     setCopied(true);
-//     setTimeout(() => setCopied(false), 2000); // reset after 2s
+
+//   toast("✅ Link Copied! Your short URL is now in the clipboard.");
+
+//     setTimeout(() => setCopied(false), 2000);
 //   };
 
 //   return (
 //     <div className="relative flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white overflow-hidden">
+//       <div className="text-white">
+//         <h1>Welcome, {session.user?.name}</h1>
+//         <p>Email: {session.user?.email}</p>
+//         <button
+//           onClick={() => signOut({ callbackUrl: "/login" })}
+//           className="mt-4 p-2 bg-red-500 rounded"
+//         >
+//           Logout
+//         </button>
+//       </div>
 //       {/* Background blobs */}
 //       <motion.div
 //         initial={{ opacity: 0 }}
@@ -158,12 +135,10 @@
 //           </motion.div>
 //         )}
 //       </motion.div>
-
-//       {/* Footer */}
-   
 //     </div>
 //   );
 // }
+
 "use client";
 
 import { useState } from "react";
@@ -180,47 +155,54 @@ export default function Home() {
   const { data: session } = useSession();
 
   if (!session) {
-    return <p className="text-white">Not logged in ❌</p>;
+    return <p>Not logged in ❌</p>;
   }
 
-
   const handleSubmit = async (e: any) => {
-
-
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:8000/shorten", {
+      const res = await axios.post("http://localhost:5000/shorten", {
         originalUrl: url,
       });
       setShortUrl(res.data.shortUrl);
       setCopied(false);
     } catch (error) {
       console.error("Error:", error);
-      toast("⚠️ Please Enter Url", "Please check your backend server.");
+      toast.error("⚠️ Please Enter Url. Please check your backend server.");
     }
-  };    
+  };
 
   const handleCopy = () => {
     navigator.clipboard.writeText(shortUrl);
     setCopied(true);
-
-    toast("✅ Link Copied!", "Your short URL is now in the clipboard.");
-
+    toast("✅ Link Copied! Your short URL is now in the clipboard.");
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white overflow-hidden">
-      <div className="text-white">
-        <h1>Welcome, {session.user?.name}</h1>
-        <p>Email: {session.user?.email}</p>
+      {/* 🔹 Top Right User Info */}
+      <div className="absolute top-4 right-6 flex items-center gap-3 mt-15">
+        {/* User Avatar */}
+        {session.user?.image && (
+          <img
+            src={session.user.image}
+            alt="User Avatar"
+            className="w-10 h-10 rounded-full border border-white/20 "
+          />
+        )}
+        {/* User Name */}
+        <span className="font-medium">{session.user?.name}</span>
+
+        {/* Logout Button */}
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
-          className="mt-4 p-2 bg-red-500 rounded"
+          className="px-3 py-1 text-sm bg-red-500 rounded hover:bg-red-600 transition"
         >
           Logout
         </button>
       </div>
+
       {/* Background blobs */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -303,3 +285,4 @@ export default function Home() {
     </div>
   );
 }
+
