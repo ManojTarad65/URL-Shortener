@@ -3,12 +3,18 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
 // Ensure the NEXTAUTH_URL is set in production
-const NEXTAUTH_URL = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+const NEXTAUTH_URL = process.env.VERCEL_URL 
+  ? `https://${process.env.VERCEL_URL}` 
+  : process.env.NEXTAUTH_URL || 'http://localhost:3000';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  secret: process.env.NEXTAUTH_SECRET,
+  // Base configuration
   basePath: "/api/auth",
+  secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === "development",
+  trustHost: true,
+  
+  // Providers configuration
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -23,11 +29,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
     }),
   ],
+  
+  // Pages configuration
   pages: {
     signIn: "/login",
     error: "/login",
     signOut: "/"
   },
+  
+  // Cookies configuration
   cookies: {
     sessionToken: {
       name: `__Secure-next-auth.session-token`,
@@ -40,26 +50,38 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
     }
   },
+  
+  // Callbacks
   callbacks: {
     async redirect({ url, baseUrl }) {
-      // Allows relative callback URLs
-      if (url.startsWith("/")) return `${baseUrl}${url}`
-      // Allows callback URLs on the same origin
-      else if (new URL(url).origin === baseUrl) return url
-      return baseUrl
+      // Ensure we always use the correct base URL
+      const finalBaseUrl = NEXTAUTH_URL || baseUrl;
+      
+      // Handle relative URLs
+      if (url.startsWith("/")) return `${finalBaseUrl}${url}`
+      
+      // Handle absolute URLs
+      try {
+        if (new URL(url).origin === finalBaseUrl) return url;
+      } catch (e) {
+        console.error('Error parsing URL:', e);
+      }
+      
+      return finalBaseUrl;
     },
+    
     async session({ session, token }) {
       if (token?.sub && session.user) {
         session.user.id = token.sub;
       }
       return session;
     },
+    
     async jwt({ token, user }) {
       if (user) {
         token.sub = user.id;
       }
       return token;
     }
-  },
-  trustHost: true,
+  }
 });
