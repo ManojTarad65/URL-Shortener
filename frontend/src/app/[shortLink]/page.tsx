@@ -23,8 +23,7 @@ export default function RedirectPage() {
         }
 
         // Call your backend API to get the original URL
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-        const response = await axios.get(`${apiUrl}/${shortId}`);
+        const response = await axios.get(`/api/backend/${shortId}`);
         
         if (response.data && response.data.originalUrl) {
           // Redirect to the original URL
@@ -33,9 +32,12 @@ export default function RedirectPage() {
           setError("URL not found");
           setLoading(false);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Redirect error:", err);
-        setError(err.response?.data?.message || "URL not found");
+        const errorMessage = axios.isAxiosError(err) && err.response?.data?.message 
+          ? err.response.data.message 
+          : "URL not found";
+        setError(errorMessage);
         setLoading(false);
       }
     };
@@ -48,7 +50,7 @@ export default function RedirectPage() {
       <div className="flex items-center justify-center min-h-screen bg-gray-950">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-white text-xl">Redirecting...</p>
+          <p className="text-black text-xl">Redirecting...</p>
         </div>
       </div>
     );
@@ -59,10 +61,10 @@ export default function RedirectPage() {
       <div className="flex items-center justify-center min-h-screen bg-gray-950">
         <div className="text-center max-w-md p-8 bg-gray-900 rounded-lg border border-red-500/30">
           <h1 className="text-4xl font-bold text-red-500 mb-4">404</h1>
-          <p className="text-white text-xl mb-6">{error}</p>
+          <p className="text-black text-xl mb-6">{error}</p>
           <button
             onClick={() => router.push("/")}
-            className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition"
+            className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-black rounded-lg transition"
           >
             Go Home
           </button>

@@ -4,11 +4,11 @@ const nextConfig: NextConfig = {
   // Enable output standalone for better Vercel deployment
   output: 'standalone',
   
-  // Configure rewrites for API calls
+  // Configure rewrites for backend API calls only (exclude NextAuth routes)
   async rewrites() {
     return [
       {
-        source: '/api/:path*',
+        source: '/api/backend/:path*',
         destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/:path*`,
       },
     ];

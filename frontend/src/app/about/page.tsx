@@ -27,7 +27,7 @@ export default function AboutPage() {
         >
           <h2 className="text-3xl font-bold mb-6">Who We Are 🚀</h2>
           <p className="text-gray-400 leading-relaxed mb-6">
-            Every great app starts with a passion for problem-solving. We're a
+            Every great app starts with a passion for problem-solving. We&apos;re a
             innovators who believe in crafting web solutions that are not only
             beautiful but also built to last.{" "}
             <span className="text-purple-400 font-semibold">

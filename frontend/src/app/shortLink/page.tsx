@@ -19,14 +19,14 @@ export default function Home() {
       </div>;
   }
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-      const res = await axios.post(`${apiUrl}/shorten`, {
+      const res = await axios.post(`/api/backend/shorten`, {
         originalUrl: url,
       });
-      setShortUrl(res.data.shortUrl);
+      // Use the shortId to construct the URL on the client side
+      setShortUrl(`${window.location.origin}/${res.data.shortId}`);
       setCopied(false);
     } catch (error) {
       console.error("Error:", error);
